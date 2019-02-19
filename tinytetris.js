@@ -38,7 +38,7 @@ module.exports = class Tetris {
         this.Width = width;
         this.Height = height;
         this.render = render;
-        this.Block = [];
+        this.Block = null;
         this.X = 0;
         this.Y = 0;
         this.Board = [...Array(height)].map(() => Array(width));
@@ -51,7 +51,7 @@ module.exports = class Tetris {
 
     // 使用canvas渲染
     static renderCanvas(matrix, ctx, margin, width, height) {
-        ctx.clearRect(0,0,width,height);  
+        ctx.clearRect(0, 0, width, height);
         matrix.forEach((y, i) => y.forEach((x, j) => {
             if (x) ctx.fillRect(
                 i * height + margin, j * width + margin,
@@ -114,13 +114,36 @@ module.exports = class Tetris {
         else return false;
     }
 
+    // 完成一个砖块的掉落
+    drop() {
+        this.Block.forEach((row, i) => row.forEach((cell, j) =>
+            this.Board[i + this.Y][j + this.X] += cell));
+        this.Block = null;
+    }
+
     // 更新状态，定时运行或在用户操作后运行
     update() {
         var board = JSON.parse(JSON.stringify(this.Board));
-        this.Block.forEach((row, i) => row.forEach((cell, j) =>
-            board[i + this.Y][j + this.X] += cell));
+        if (this.Block != null)
+            this.Block.forEach((row, i) => row.forEach((cell, j) =>
+                board[i + this.Y][j + this.X] += cell));
         this.render(board);
     }
+
+    start() {
+        setInterval(() => {
+            const randomInt = (n) => Math.floor(Math.random() * n);
+            // 创建新的随机砖块
+            if (this.Block == null) {
+                this.Block = Blocks[randomInt(Blocks.length)];
+                for (let i = 0; i < randomInt(4); i++)
+                    this.spin();
+                this.Y = 0;
+                this.X = 0;
+            } else if (!this.move(0, 1)) {
+                this.drop();
+            }
+            this.update();
+        }, 1000);
+    }
 }
-
-

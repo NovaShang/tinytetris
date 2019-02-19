@@ -2,7 +2,7 @@
   "name": "tinytetris",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "tinytetris.js",
   "scripts": {
     "test": "nyc mocha test.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls"

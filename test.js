@@ -1,4 +1,4 @@
-const Tetris = require('./index.js')
+const Tetris = require('./tinytetris.js')
 const assert = require('assert');
 
 describe("Tetris", () => {
