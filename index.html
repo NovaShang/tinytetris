@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <canvas id="tetris-board" height="500" width="500"></canvas>
+    <script src="./tinytetris.js"></script>
+    <script>
+        const ctx = document.getElementById("tetris-board").getContext('2d');
+
+        const Colors = ['#666666', '#FF0000', '#FF0000', '#FF0000', '#FF0000', '#FF0000', '#FF0000', '#FF0000']
+
+
+        const renderCanvas = (matrix, ctx, margin, width, height) => {
+            matrix.forEach((y, i) => y.forEach((x, j) => {
+                ctx.fillStyle = Colors[x];
+                ctx.fillRect(
+                    j * width + margin, i * height + margin,
+                    width - 2 * margin, height - 2 * margin);
+            }));
+        }
+        let t = new Tetris(10, 20, (m) => {
+            renderCanvas(m, ctx, 2, 20, 20);
+        }, 2);
+        t.start();
+        document.onkeydown = () => {
+            switch (window.event.keyCode) {
+                case 87:
+                    t.action('drop');
+                    break;
+                case 65:
+                    t.action('move-left');
+                    break;
+                case 68:
+                    t.action('move-right');
+                    break;
+                case 83:
+                    t.action('move-down');
+                    break;
+                case 32:
+                    t.action('spin-right');
+                    break;
+            }
+        };
+    </script>
+</body>
+
+</html>

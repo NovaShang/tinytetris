@@ -86,6 +86,7 @@ class Tetris {
                 this.Board[i + this.Y][j + this.X] += cell;
         }));
         this.Block = null;
+        rowTest();
     }
 
     // 更新状态，定时运行或在用户操作后运行
@@ -138,19 +139,26 @@ class Tetris {
         switch (code) {
             case 'move-left':
                 this.move(-1, 0);
+                break;
             case 'move-right':
                 this.move(1, 0);
+                break;
             case 'move-down':
                 this.move(0, 1);
+                break;
             case 'drop':
                 while (this.move(0, 1)) { }
+                break;
             case 'spin-left':
                 this.spin(true);
+                break;
             case 'spin-right':
                 this.spin();
+                break;
         }
         this.update();
     }
 }
 
-module.exports = Tetris;
+if (module)
+    module.exports = Tetris;
