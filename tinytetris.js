@@ -13,16 +13,18 @@ const BLOCKS = [
 class Tetris {
 
     // 构造方法
-    constructor(width, height, render) {
+    constructor(width, height, render, speed = 1) {
         this.Width = width;
         this.Height = height;
         this.Render = render;
         this.Blocks = BLOCKS;
+        this.Speed = speed;
         this.reset();
     }
 
     // 检查碰撞
     hitTest(block, x, y) {
+        if (block == null) return true;
         var blockCells = block
             .map((row, i) => row.map((cell, j) => {
                 return { data: cell, y: i + y, x: j + x };
@@ -51,6 +53,7 @@ class Tetris {
 
     // 旋转当前的block
     spin(inverse = false) {
+        if (this.Block == null) return;
         let length = this.Block.length;
         let result = [...Array(length)].map(() => Array(length));
         for (let i = 0; i < length; i++) {
@@ -77,8 +80,11 @@ class Tetris {
 
     // 完成一个砖块的掉落
     drop() {
-        this.Block.forEach((row, i) => row.forEach((cell, j) =>
-            this.Board[i + this.Y][j + this.X] += cell));
+        this.Block.forEach((row, i) => row.forEach((cell, j) => {
+            if (i + this.Y < this.Height && i + this.Y >= 0 &&
+                j + this.X < this.Width && j + this.X >= 0)
+                this.Board[i + this.Y][j + this.X] += cell;
+        }));
         this.Block = null;
     }
 
@@ -93,7 +99,7 @@ class Tetris {
 
     // 开始游戏
     start() {
-        this.Interval = setInterval(this.tick, 1000);
+        this.Interval = setInterval(() => this.tick(), 1000 / this.Speed);
     }
 
     // 停止游戏
@@ -108,7 +114,7 @@ class Tetris {
         this.Y = 0;
         this.Interval = -1;
         this.Board = [...Array(this.Height)]
-            .map(() => Array(this.Width));
+            .map(() => [...Array(this.Width)].map(x => 0));
     }
 
     // 每固定时间自动运行这里
@@ -116,7 +122,7 @@ class Tetris {
         const randomInt = (n) => Math.floor(Math.random() * n);
         // 创建新的随机砖块
         if (this.Block == null) {
-            this.Block = Blocks[randomInt(Blocks.length)];
+            this.Block = this.Blocks[randomInt(this.Blocks.length)];
             for (let i = 0; i < randomInt(4); i++)
                 this.spin();
             this.Y = 0;
@@ -143,7 +149,7 @@ class Tetris {
             case 'spin-right':
                 this.spin();
         }
-        update();
+        this.update();
     }
 }
 

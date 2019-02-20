@@ -163,7 +163,7 @@ describe("Tetris", () => {
     });
     it("移动碰撞 - 边界", () => {
         let t = new Tetris(3, 5, (s) => { });
-        t.Y = 4;
+        t.Y = 3;
         t.Block = [
             [0, 1, 0],
             [1, 1, 1],
@@ -177,7 +177,7 @@ describe("Tetris", () => {
             [0, 0, 0],
         ]
         t.move(0, 1);
-        assert.equal(1, t.Y);
+        assert.equal(3, t.Y);
     });
     it("完成下落", () => {
         let t = new Tetris(3, 5, (s) => { });
@@ -203,6 +203,7 @@ describe("Tetris", () => {
         ];
         t.drop();
         assert.equal(JSON.stringify(expect), JSON.stringify(t.Board));
+        assert.equal(null, t.Block);
     });
     it("更新状态", () => {
         let t = new Tetris(3, 5, (matrix) => {
@@ -226,18 +227,69 @@ describe("Tetris", () => {
             [0, 0, 0],
             [0, 0, 0],
             [0, 1, 0],
-        ]
+        ];
         t.update();
     });
-    it("开始/停止", () => {
-        let t = new Tetris(3, 5, (m) => { });
+    it("开始/停止", (done) => {
+        let t = new Tetris(3, 5, () => { }, 10);
         t.start();
         setTimeout(() => {
             assert.equal(2, t.Y);
             t.stop();
             setTimeout(() => {
                 assert.equal(2, t.Y);
-            }, 2000)
-        }, 2000)
+                done();
+            }, 200)
+        }, 350)
     });
+    it("生成新砖块", () => {
+        let t = new Tetris(3, 5, (m) => { });
+        t.tick();
+        assert.equal(true, t.Block.length > 1);
+    });
+    it("触底判断", () => {
+        let t = new Tetris(3, 5, (m) => { });
+        t.Block = [
+            [0, 0, 1],
+            [1, 1, 1],
+            [0, 0, 0],
+        ];
+        t.Y = 3;
+        t.tick();
+        let expect = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 1],
+            [1, 1, 1],
+        ];
+        assert.equal(null, t.Block);
+        assert.equal(JSON.stringify(expect), JSON.stringify(t.Board));
+    });
+    it("按键动作", (done) => {
+
+        let t = new Tetris(3, 5, (m) => { }, 10);
+        let callAll = () => {
+            t.action('move-left');
+            t.action('move-right');
+            t.action('move-down');
+            t.action('spin-left');
+            t.action('spin-right');
+            t.action('drop');
+        };
+        t.start();
+        callAll();
+        setTimeout(() => {
+            callAll();
+            setTimeout(() => {
+                callAll();
+                t.stop();
+                done();
+            }, 200)
+        }, 350)
+
+
+    });
+
+
 })
