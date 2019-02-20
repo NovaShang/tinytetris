@@ -1,62 +1,24 @@
-const Blocks = [
-    [
-        [0, 1, 0, 0],
-        [0, 1, 0, 0],
-        [0, 1, 0, 0],
-        [0, 1, 0, 0]
-    ], [
-        [0, 1, 0],
-        [1, 1, 1],
-        [0, 0, 0]
-    ], [
-        [0, 1, 0],
-        [1, 1, 0],
-        [1, 0, 0]
-    ], [
-        [0, 1, 0],
-        [0, 1, 1],
-        [0, 0, 1]
-    ], [
-        [0, 1, 1],
-        [0, 1, 0],
-        [0, 1, 0]
-    ], [
-        [1, 1, 0],
-        [0, 1, 0],
-        [0, 1, 0]
-    ], [
-        [1, 1],
-        [1, 1]
-    ]
+// 各种块的形状
+const BLOCKS = [
+    [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]], //I
+    [[0, 2, 0], [2, 2, 2], [0, 0, 0]], // T
+    [[0, 3, 0], [3, 3, 0], [3, 0, 0]], // Z
+    [[0, 4, 0], [0, 4, 4], [0, 0, 4]], // S
+    [[0, 5, 5], [0, 5, 0], [0, 5, 0]], // J
+    [[6, 6, 0], [0, 6, 0], [0, 6, 0]], // L
+    [[7, 7], [7, 7]] //O
 ];
 
-
-module.exports = class Tetris {
+// 主要的类
+class Tetris {
 
     // 构造方法
     constructor(width, height, render) {
         this.Width = width;
         this.Height = height;
-        this.render = render;
-        this.Block = null;
-        this.X = 0;
-        this.Y = 0;
-        this.Board = [...Array(height)].map(() => Array(width));
-    }
-
-    // 使用文本渲染
-    static renderAscii(matrix, callback) {
-        callback(matrix.map(y => y.map(x => x ? '■' : '□').join('')).join('\n'));
-    }
-
-    // 使用canvas渲染
-    static renderCanvas(matrix, ctx, margin, width, height) {
-        ctx.clearRect(0, 0, width, height);
-        matrix.forEach((y, i) => y.forEach((x, j) => {
-            if (x) ctx.fillRect(
-                i * height + margin, j * width + margin,
-                height - 2 * margin, width - 2 * margin);
-        }));
+        this.Render = render;
+        this.Blocks = BLOCKS;
+        this.reset();
     }
 
     // 检查碰撞
@@ -90,7 +52,6 @@ module.exports = class Tetris {
     // 旋转当前的block
     spin(inverse = false) {
         let length = this.Block.length;
-
         let result = [...Array(length)].map(() => Array(length));
         for (let i = 0; i < length; i++) {
             for (let j = 0; j < length; j++) {
@@ -127,23 +88,63 @@ module.exports = class Tetris {
         if (this.Block != null)
             this.Block.forEach((row, i) => row.forEach((cell, j) =>
                 board[i + this.Y][j + this.X] += cell));
-        this.render(board);
+        this.Render(board);
     }
 
+    // 开始游戏
     start() {
-        setInterval(() => {
-            const randomInt = (n) => Math.floor(Math.random() * n);
-            // 创建新的随机砖块
-            if (this.Block == null) {
-                this.Block = Blocks[randomInt(Blocks.length)];
-                for (let i = 0; i < randomInt(4); i++)
-                    this.spin();
-                this.Y = 0;
-                this.X = 0;
-            } else if (!this.move(0, 1)) {
-                this.drop();
-            }
-            this.update();
-        }, 1000);
+        this.Interval = setInterval(this.tick, 1000);
+    }
+
+    // 停止游戏
+    stop() {
+        clearInterval(this.Interval);
+    }
+
+    // 重设状态
+    reset() {
+        this.Block = null;
+        this.X = 0;
+        this.Y = 0;
+        this.Interval = -1;
+        this.Board = [...Array(this.Height)]
+            .map(() => Array(this.Width));
+    }
+
+    // 每固定时间自动运行这里
+    tick() {
+        const randomInt = (n) => Math.floor(Math.random() * n);
+        // 创建新的随机砖块
+        if (this.Block == null) {
+            this.Block = Blocks[randomInt(Blocks.length)];
+            for (let i = 0; i < randomInt(4); i++)
+                this.spin();
+            this.Y = 0;
+            this.X = 0;
+        }
+        else if (!this.move(0, 1))
+            this.drop();
+        this.update();
+    }
+
+    // 接收外部操作
+    action(code) {
+        switch (code) {
+            case 'move-left':
+                this.move(-1, 0);
+            case 'move-right':
+                this.move(1, 0);
+            case 'move-down':
+                this.move(0, 1);
+            case 'drop':
+                while (this.move(0, 1)) { }
+            case 'spin-left':
+                this.spin(true);
+            case 'spin-right':
+                this.spin();
+        }
+        update();
     }
 }
+
+module.exports = Tetris;

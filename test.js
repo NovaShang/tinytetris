@@ -2,18 +2,6 @@ const Tetris = require('./tinytetris.js')
 const assert = require('assert');
 
 describe("Tetris", () => {
-    it("渲染文字", () => {
-        Tetris.renderAscii([[0, 0, 0], [0, 1, 0], [0, 1, 1]], (s) => {
-            assert.equal("□□□\n□■□\n□■■", s);
-        });
-    });
-    it("渲染canvas", () => {
-        let ctx = {
-            clearRect: (x, y, w, h) => { },
-            fillRect: (x, y, w, h) => { }
-        };
-        Tetris.renderCanvas([[0, 0, 0], [0, 1, 0], [0, 1, 1]], ctx, 2, 10, 10);
-    });
     it("碰撞检查 - 碰砖块", () => {
         let t = new Tetris(3, 5, (s) => { });
         t.Board = [
@@ -173,6 +161,49 @@ describe("Tetris", () => {
         t.move(0, 1);
         assert.equal(1, t.Y);
     });
+    it("移动碰撞 - 边界", () => {
+        let t = new Tetris(3, 5, (s) => { });
+        t.Y = 4;
+        t.Block = [
+            [0, 1, 0],
+            [1, 1, 1],
+            [0, 0, 0],
+        ];
+        t.Board = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+        ]
+        t.move(0, 1);
+        assert.equal(1, t.Y);
+    });
+    it("完成下落", () => {
+        let t = new Tetris(3, 5, (s) => { });
+        t.Y = 1;
+        t.Block = [
+            [0, 1, 0],
+            [0, 1, 0],
+            [0, 1, 1],
+        ];
+        t.Board = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 1, 0],
+        ];
+        let expect = [
+            [0, 0, 0],
+            [0, 1, 0],
+            [0, 1, 0],
+            [0, 1, 1],
+            [0, 1, 0],
+        ];
+        t.drop();
+        assert.equal(JSON.stringify(expect), JSON.stringify(t.Board));
+    });
     it("更新状态", () => {
         let t = new Tetris(3, 5, (matrix) => {
             let expect = [
@@ -197,5 +228,16 @@ describe("Tetris", () => {
             [0, 1, 0],
         ]
         t.update();
+    });
+    it("开始/停止", () => {
+        let t = new Tetris(3, 5, (m) => { });
+        t.start();
+        setTimeout(() => {
+            assert.equal(2, t.Y);
+            t.stop();
+            setTimeout(() => {
+                assert.equal(2, t.Y);
+            }, 2000)
+        }, 2000)
     });
 })
