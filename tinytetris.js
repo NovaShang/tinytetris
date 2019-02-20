@@ -48,24 +48,19 @@ class Tetris {
                 count++;
             }
         }
+        this.Score += count * count * 100;
         return count;
     }
 
     // 旋转当前的block
-    spin(inverse = false) {
-        if (this.Block == null) return;
-        let length = this.Block.length;
+    spin(block) {
+        if (block == null) return;
+        let length = block.length;
         let result = [...Array(length)].map(() => Array(length));
-        for (let i = 0; i < length; i++) {
-            for (let j = 0; j < length; j++) {
-                if (inverse)
-                    result[i][j] = this.Block[j][length - i - 1];
-                else
-                    result[i][j] = this.Block[length - j - 1][i];
-            }
-        }
-        if (!this.hitTest(result, this.X, this.Y))
-            this.Block = result;
+        for (let i = 0; i < length; i++)
+            for (let j = 0; j < length; j++)
+                result[i][j] = block[length - j - 1][i];
+        return result;
     }
 
     // 向下移动一格
@@ -86,7 +81,7 @@ class Tetris {
                 this.Board[i + this.Y][j + this.X] += cell;
         }));
         this.Block = null;
-        rowTest();
+        this.rowTest();
     }
 
     // 更新状态，定时运行或在用户操作后运行
@@ -95,7 +90,7 @@ class Tetris {
         if (this.Block != null)
             this.Block.forEach((row, i) => row.forEach((cell, j) =>
                 board[i + this.Y][j + this.X] += cell));
-        this.Render(board);
+        this.Render(board, this.Next, this.Score);
     }
 
     // 开始游戏
@@ -111,21 +106,30 @@ class Tetris {
     // 重设状态
     reset() {
         this.Block = null;
+        this.Next = this.random();
         this.X = 0;
         this.Y = 0;
+        this.Score = 0;
         this.Interval = -1;
         this.Board = [...Array(this.Height)]
             .map(() => [...Array(this.Width)].map(x => 0));
     }
 
+    // 随机生成一个砖块
+    random() {
+        const randomInt = (n) => Math.floor(Math.random() * n);
+        var result = this.Blocks[randomInt(this.Blocks.length)];
+        for (let i = 0; i < randomInt(4); i++)
+            result = this.spin(result);
+        return result;
+    }
+
     // 每固定时间自动运行这里
     tick() {
-        const randomInt = (n) => Math.floor(Math.random() * n);
         // 创建新的随机砖块
         if (this.Block == null) {
-            this.Block = this.Blocks[randomInt(this.Blocks.length)];
-            for (let i = 0; i < randomInt(4); i++)
-                this.spin();
+            this.Block = this.Next;
+            this.Next = this.random();
             this.Y = 0;
             this.X = 0;
         }
@@ -149,16 +153,14 @@ class Tetris {
             case 'drop':
                 while (this.move(0, 1)) { }
                 break;
-            case 'spin-left':
-                this.spin(true);
-                break;
-            case 'spin-right':
-                this.spin();
+            case 'spin':
+                let result = this.spin(this.Block);
+                if (!this.hitTest(result, this.X, this.Y))
+                    this.Block = result;
                 break;
         }
         this.update();
     }
 }
 
-if (module)
-    module.exports = Tetris;
+module.exports = Tetris;

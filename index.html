@@ -17,16 +17,27 @@
         const Colors = ['#666666', '#FF0000', '#FF0000', '#FF0000', '#FF0000', '#FF0000', '#FF0000', '#FF0000']
 
 
-        const renderCanvas = (matrix, ctx, margin, width, height) => {
+        const renderCanvas = (matrix, next, score, ctx, margin, width, height) => {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             matrix.forEach((y, i) => y.forEach((x, j) => {
                 ctx.fillStyle = Colors[x];
                 ctx.fillRect(
                     j * width + margin, i * height + margin,
                     width - 2 * margin, height - 2 * margin);
             }));
+            next.forEach((y, i) => y.forEach((x, j) => {
+                ctx.fillStyle = Colors[x];
+                ctx.fillRect(
+                    j * width + margin + 300, i * height + margin + 100,
+                    width - 2 * margin, height - 2 * margin);
+            }));
+            ctx.font="30px sans-serif";
+
+            ctx.fillText(score, 300, 0);
+
         }
-        let t = new Tetris(10, 20, (m) => {
-            renderCanvas(m, ctx, 2, 20, 20);
+        let t = new Tetris(10, 20, (m, n, s) => {
+            renderCanvas(m, n, s, ctx, 2, 20, 20);
         }, 2);
         t.start();
         document.onkeydown = () => {
@@ -44,7 +55,7 @@
                     t.action('move-down');
                     break;
                 case 32:
-                    t.action('spin-right');
+                    t.action('spin');
                     break;
             }
         };

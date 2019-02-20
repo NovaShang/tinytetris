@@ -77,8 +77,8 @@ describe("Tetris", () => {
             [0, 0, 1, 1],
             [0, 0, 0, 1]
         ];
-        t.spin();
-        assert.equal(JSON.stringify(expect), JSON.stringify(t.Block));
+        let result = t.spin(t.Block);
+        assert.equal(JSON.stringify(expect), JSON.stringify(result));
     });
     it("顺时针旋转 3x3", () => {
         let t = new Tetris(3, 5, (s) => { });
@@ -92,23 +92,8 @@ describe("Tetris", () => {
             [0, 0, 1],
             [0, 1, 1],
         ];
-        t.spin();
-        assert.equal(JSON.stringify(expect), JSON.stringify(t.Block));
-    });
-    it("逆时针旋转", () => {
-        let t = new Tetris(3, 5, (s) => { });
-        t.Block = [
-            [1, 1, 1],
-            [0, 0, 1],
-            [0, 0, 0],
-        ];
-        let expect = [
-            [1, 1, 0],
-            [1, 0, 0],
-            [1, 0, 0],
-        ];
-        t.spin(true);
-        assert.equal(JSON.stringify(expect), JSON.stringify(t.Block));
+        let result = t.spin(t.Block);
+        assert.equal(JSON.stringify(expect), JSON.stringify(result));
     });
     it("旋转碰撞", () => {
         let t = new Tetris(3, 5, (s) => { });
@@ -231,7 +216,7 @@ describe("Tetris", () => {
         t.update();
     });
     it("开始/停止", (done) => {
-        let t = new Tetris(3, 5, () => { }, 10);
+        let t = new Tetris(3, 10, () => { }, 10);
         t.start();
         setTimeout(() => {
             assert.equal(2, t.Y);
@@ -264,7 +249,7 @@ describe("Tetris", () => {
             [1, 1, 1],
         ];
         assert.equal(null, t.Block);
-        assert.equal(JSON.stringify(expect), JSON.stringify(t.Board));
+        assert.equal(100, t.Score);
     });
     it("按键动作", (done) => {
 
@@ -273,8 +258,7 @@ describe("Tetris", () => {
             t.action('move-left');
             t.action('move-right');
             t.action('move-down');
-            t.action('spin-left');
-            t.action('spin-right');
+            t.action('spin');
             t.action('drop');
         };
         t.start();
@@ -287,9 +271,5 @@ describe("Tetris", () => {
                 done();
             }, 200)
         }, 350)
-
-
     });
-
-
 })
