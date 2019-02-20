@@ -55,13 +55,16 @@ describe("Tetris", () => {
             [1, 1, 1],
             [0, 1, 0],
             [1, 1, 1],
-        ]
+        ];
+        let expect = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 1],
+            [0, 1, 0],
+        ];
         assert.equal(2, t.rowTest());
-        assert.equal(0, t.Board[4][0]);
-        assert.equal(1, t.Board[4][1]);
-        assert.equal(0, t.Board[3][1]);
-        assert.equal(1, t.Board[3][2]);
-        assert.equal(3, t.Board[2].filter(x => x == 0).length);
+        assert.equal(JSON.stringify(expect), JSON.stringify(t.Board));
     });
     it("顺时针旋转 4x4", () => {
         let t = new Tetris(4, 5, (s) => { });
@@ -190,7 +193,7 @@ describe("Tetris", () => {
         assert.equal(JSON.stringify(expect), JSON.stringify(t.Board));
         assert.equal(null, t.Block);
     });
-    it("更新状态", () => {
+    it("更新状态", (done) => {
         let t = new Tetris(3, 5, (matrix) => {
             let expect = [
                 [0, 1, 0],
@@ -200,6 +203,7 @@ describe("Tetris", () => {
                 [0, 1, 0],
             ];
             assert.equal(JSON.stringify(expect), JSON.stringify(matrix))
+            done();
         });
         t.Block = [
             [0, 1, 0],
@@ -215,6 +219,34 @@ describe("Tetris", () => {
         ];
         t.update();
     });
+    it("更新状态 - 超出范围", (done) => {
+        let t = new Tetris(3, 5, (matrix) => {
+            let expect = [
+                [0, 0, 1],
+                [0, 0, 1],
+                [0, 1, 1],
+                [0, 0, 0],
+                [0, 1, 0],
+            ];
+            assert.equal(JSON.stringify(expect), JSON.stringify(matrix))
+            done();
+        });
+        t.Block = [
+            [0, 1, 0],
+            [0, 1, 0],
+            [1, 1, 0],
+        ];
+        t.Board = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 1, 0],
+        ];
+        t.X = 1;
+        t.update();
+    });
+
     it("开始/停止", (done) => {
         let t = new Tetris(3, 10, () => { }, 10);
         t.start();

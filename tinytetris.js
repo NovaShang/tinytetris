@@ -44,7 +44,7 @@ class Tetris {
         for (let i = 0; i < this.Height; i++) {
             if (!this.Board[i].some(x => x == 0)) {
                 this.Board.splice(i, 1);
-                this.Board.splice(0, 0, Array(this.Width));
+                this.Board.splice(0, 0, [...Array(this.Width)].map(x => 0));
                 count++;
             }
         }
@@ -88,8 +88,11 @@ class Tetris {
     update() {
         var board = JSON.parse(JSON.stringify(this.Board));
         if (this.Block != null)
-            this.Block.forEach((row, i) => row.forEach((cell, j) =>
-                board[i + this.Y][j + this.X] += cell));
+            this.Block.forEach((row, i) => row.forEach((cell, j) => {
+                if (i + this.Y < this.Height && i + this.Y >= 0 &&
+                    j + this.X < this.Width && j + this.X >= 0)
+                    board[i + this.Y][j + this.X] += cell;
+            }));
         this.Render(board, this.Next, this.Score);
     }
 
