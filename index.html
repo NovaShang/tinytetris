@@ -13,10 +13,7 @@
     <script src="./tinytetris.js"></script>
     <script>
         const ctx = document.getElementById("tetris-board").getContext('2d');
-
-        const Colors = ['#666666', '#FF0000', '#FF0000', '#FF0000', '#FF0000', '#FF0000', '#FF0000', '#FF0000']
-
-
+        const Colors = ['#999999', '#00FFFF', '#FF00FF', '#FF0000', '#00FF00', '#0000FF', '#FF7F24', '#EEC900']
         const renderCanvas = (matrix, next, score, ctx, margin, width, height) => {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             matrix.forEach((y, i) => y.forEach((x, j) => {
@@ -31,10 +28,9 @@
                     j * width + margin + 300, i * height + margin + 100,
                     width - 2 * margin, height - 2 * margin);
             }));
-            ctx.font="30px sans-serif";
-
-            ctx.fillText(score, 300, 0);
-
+            ctx.fillStyle = "#999999"
+            ctx.font = "20px sans-serif";
+            ctx.fillText(score, 300, 40);
         }
         let t = new Tetris(10, 20, (m, n, s) => {
             renderCanvas(m, n, s, ctx, 2, 20, 20);
